@@ -24,4 +24,4 @@ jobs:
       uses: stefanzweifel/git-auto-commit-action@v4
       with:
         commit_message: Update list of external libraries to latest version of WordPress.
-        branch: trunk
+        branch: main
