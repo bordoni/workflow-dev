@@ -18,7 +18,7 @@ jobs:
         version: 1.0 # used to clear cache if needed.
 
     - name: Execute run the Script to modify the list of external libraries
-      run: ./dev/generate-external-libraries.sh --format=html --file=external-libraries.md
+      run: ./dev/generate-external-libraries.sh --format html --input external-libraries.md
 
     - name: Commit and push if there are changes
       uses: stefanzweifel/git-auto-commit-action@v4
