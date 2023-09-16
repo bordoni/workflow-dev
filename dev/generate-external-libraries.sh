@@ -1,14 +1,26 @@
 #!/bin/bash
 
+# Define colors
+RED="\033[1;31m"
+GREEN="\033[1;32m"
+YELLOW="\033[1;33m"
+RESET="\033[0m"
+
+# Header
+echo -e "${YELLOW}======================================="
+echo -e " WordPress API External Libraries Fetcher Script"
+echo -e "=======================================${RESET}"
+echo
+
 # Check if jq is installed
 if ! command -v jq &> /dev/null; then
-    echo "Error: jq is not installed. Please install it and try again."
+    echo -e "${RED}Error: jq is not installed. Please install it and try again.${RESET}"
     exit 1
 fi
 
 # Check if perl is installed
 if ! command -v perl > /dev/null; then
-    echo "Error: perl is not installed. Please install perl to continue."
+    echo -e "${RED}Error: perl is not installed. Please install perl to continue.${RESET}"
     exit 1
 fi
 
@@ -37,22 +49,25 @@ while [[ "$#" -gt 0 ]]; do
     case $1 in
         -f|--format)
             FORMAT="$2";
+            echo -e "${GREEN}Setting output format to: $FORMAT${RESET}"
             shift
             ;;
         -v|--version)
             VERSION="$2";
-            VERSION_URL="&version=$VERSION"
+            VERSION_URL="?version=$VERSION"
+            echo -e "${GREEN}Setting WordPress version to: $VERSION${RESET}"
             shift
             ;;
         -i|--input)
             FILE="$2";
+            echo -e "${GREEN}Setting input file to: $FILE${RESET}"
             shift
             ;;
         -h|--help)
             display_help
             ;;
         *)
-            echo "Unknown parameter: $1"
+            echo -e "${RED}Unknown parameter: $1${RESET}"
             exit 1
             ;;
     esac
@@ -61,23 +76,33 @@ done
 
 # Check for format and file compatibility
 if [[ ! -z "$FILE" && "$FORMAT" != "html" ]]; then
-    echo "Error: When specifying a file with the -i/--input option, the format must be set to 'html'."
+    echo -e "${RED}Error: When specifying a file with the -i/--input option, the format must be set to 'html'.${RESET}"
     exit 1
 fi
 
 # Build the full URL
 FULL_URL="${BASE_URL}${VERSION_URL}"
+echo -e "${GREEN}Built full URL: $FULL_URL${RESET}"
 
 # Fetch the JSON from the URL
 JSON_DATA=$(curl -s "$FULL_URL")
 CURL_EXIT_STATUS=$?
 
 if [[ $CURL_EXIT_STATUS -ne 0 ]]; then
-    echo "Error: Failed to fetch data from the URL. CURL Exit Status: $CURL_EXIT_STATUS"
+    echo -e "${RED}Error: Failed to fetch data from the URL. CURL Exit Status: $CURL_EXIT_STATUS${RESET}"
+    exit 1
+else
+    echo -e "${GREEN}Successfully fetched data from the URL.${RESET}"
+fi
+
+# Check if JSON data is empty
+if [[ -z "$JSON_DATA" ]]; then
+    echo -e "${RED}Error: Received empty data from the URL.${RESET}"
     exit 1
 fi
 
 # Extract and format data based on the specified format
+echo -e "${GREEN}Extracting and formatting data...${RESET}"
 case "$FORMAT" in
     "markdown")
         DATA=$(echo "$JSON_DATA" | jq -r '.groups.libraries.data[] | "- [" + .[0] + "](" + .[1] + ")"')
@@ -104,7 +129,10 @@ case "$FORMAT" in
         fi
         ;;
     *)
-        echo "Error: Invalid format. Available formats: markdown, comma, html"
+        echo -e "${RED}Error: Invalid format. Available formats: markdown, comma, html.${RESET}"
         exit 1
         ;;
 esac
+
+# End message
+echo -e "${YELLOW}Script execution completed.${RESET}"
