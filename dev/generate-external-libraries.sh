@@ -15,6 +15,7 @@ fi
 BASE_URL="https://api.wordpress.org/core/credits/1.1/"
 FORMAT="markdown"
 VERSION=""
+VERSION_URL=""
 FILE=""
 
 display_help() {
@@ -39,7 +40,8 @@ while [[ "$#" -gt 0 ]]; do
             shift
             ;;
         -v|--version)
-            VERSION="?version=$2";
+            VERSION="$2";
+            VERSION_URL="&version=$VERSION"
             shift
             ;;
         -i|--input)
@@ -64,7 +66,7 @@ if [[ ! -z "$FILE" && "$FORMAT" != "html" ]]; then
 fi
 
 # Build the full URL
-FULL_URL="${BASE_URL}${VERSION}"
+FULL_URL="${BASE_URL}${VERSION_URL}"
 
 # Fetch the JSON from the URL
 JSON_DATA=$(curl -s "$FULL_URL")
