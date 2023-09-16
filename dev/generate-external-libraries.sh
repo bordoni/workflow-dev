@@ -68,6 +68,12 @@ FULL_URL="${BASE_URL}${VERSION}"
 
 # Fetch the JSON from the URL
 JSON_DATA=$(curl -s "$FULL_URL")
+CURL_EXIT_STATUS=$?
+
+if [[ $CURL_EXIT_STATUS -ne 0 ]]; then
+    echo "Error: Failed to fetch data from the URL. CURL Exit Status: $CURL_EXIT_STATUS"
+    exit 1
+fi
 
 # Extract and format data based on the specified format
 case "$FORMAT" in
@@ -87,6 +93,10 @@ case "$FORMAT" in
         if [[ ! -z "$FILE" ]]; then
             # Use perl to replace the ul with a given id
             perl -i -p0e "s|<ul id=\"list-external-libraries\">.*?</ul>|$NEW_LIST|gs" "$FILE"
+
+            if [[ ! -z "$VERSION" ]]; then
+              perl -i -p0e "s|\*\*.*? of WordPress\*\*|\*\*$VERSION of WordPress\*\*|gs" "$FILE"
+            fi
         else
             echo "$NEW_LIST"
         fi
