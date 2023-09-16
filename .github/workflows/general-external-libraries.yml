@@ -3,7 +3,7 @@ name: Update list of External Libraries
 on:
   workflow_dispatch:
     inputs:
-      WP_VERSION:
+      wp_version:
         description: 'WordPress Version'
         required: true
         type: text
@@ -27,7 +27,7 @@ jobs:
         version: 1.0 # used to clear cache if needed.
 
     - name: Execute run the Script to modify the list of external libraries
-      run: ./dev/generate-external-libraries.sh --format html --input external-libraries.md --version $INPUT_WP_VERSION
+      run: ./dev/generate-external-libraries.sh --format html --input external-libraries.md --version ${{ github.event.inputs.wp_version }}
 
     - name: Commit and push if there are changes
       uses: stefanzweifel/git-auto-commit-action@v4
